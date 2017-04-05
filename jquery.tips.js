@@ -1,7 +1,7 @@
 /**
  * Plug-In name: jquery.tips.js
- * Versions: 1.0.5
- * Modify time: 2017/03/30
+ * Versions: 1.0.6
+ * Modify time: 2017/04/05
  * Created by TomnTang on 2017/03/26
  * Website: http://www.lovevivi.com/plugin/jquery.tips.js/
  */
@@ -24,24 +24,28 @@
             afterTips: null
         };
 
-        var settings = $.extend({}, defaults, options);
+        var settings = $.extend({}, defaults, options), $target = (this.selector).replace('.', '').replace('#', '');
 
         return this.each(function(){
-            var $that = $(this), html = '', $tips = null, offset = 6, set = {}, index = 0, timer = null;
+            var $that = $(this), html = '', $tips = null, offset = 6, set = {} , index = 0, timer = null;
 
             set.type = parseInt($that.attr('tips-type') ? $that.attr('tips-type') : settings.type);
-            set.title = $that.attr('tips-title') ? $that.attr('tips-title') : settings.title;
-            set.text = $that.attr('tips-text') ? $that.attr('tips-text') : settings.text;
-            set.color = $that.attr('tips-color') ? $that.attr('tips-color') : settings.color;
-            set.borderColor = $that.attr('tips-bordercolor') ? $that.attr('tips-bordercolor') : (settings.borderColor ? settings.borderColor : set.color);
-            set.backgroundColor = $that.attr('tips-backgroundcolor') ? $that.attr('tips-backgroundcolor') : (settings.backgroundColor ? settings.backgroundColor : set.borderColor);
-            set.fontSize = $that.attr('tips-fontsize') ? $that.attr('tips-fontsize') : settings.fontSize;
-            set.maxWidth = $that.attr('tips-maxwidth') ? $that.attr('tips-maxwidth') : settings.maxWidth;
-            set.position = $that.attr('tips-position') ? $that.attr('tips-position') : settings.position;
-            set.time = parseInt($that.attr('tips-time') ? $that.attr('tips-time') : (settings.time > 2) ? settings.time : 2);
-            set.animation = $that.attr('tips-animation') !== undefined ? getBoolean($that.attr('tips-animation')) : settings.animation;
-            set.beforeTips = settings.beforeTips ? settings.beforeTips : null;
-            set.afterTips = settings.afterTips ? settings.afterTips : null;
+
+            // 初始化属性配置方法
+            function init() {
+                set.title = $that.attr('tips-title') ? $that.attr('tips-title') : settings.title;
+                set.text = $that.attr('tips-text') ? $that.attr('tips-text') : settings.text;
+                set.color = $that.attr('tips-color') ? $that.attr('tips-color') : settings.color;
+                set.borderColor = $that.attr('tips-bordercolor') ? $that.attr('tips-bordercolor') : (settings.borderColor ? settings.borderColor : set.color);
+                set.backgroundColor = $that.attr('tips-backgroundcolor') ? $that.attr('tips-backgroundcolor') : (settings.backgroundColor ? settings.backgroundColor : set.borderColor);
+                set.fontSize = $that.attr('tips-fontsize') ? $that.attr('tips-fontsize') : settings.fontSize;
+                set.maxWidth = $that.attr('tips-maxwidth') ? $that.attr('tips-maxwidth') : settings.maxWidth;
+                set.position = $that.attr('tips-position') ? $that.attr('tips-position') : settings.position;
+                set.time = parseInt($that.attr('tips-time') ? $that.attr('tips-time') : (settings.time > 2) ? settings.time : 2);
+                set.animation = $that.attr('tips-animation') !== undefined ? getBoolean($that.attr('tips-animation')) : settings.animation;
+                set.beforeTips = settings.beforeTips ? settings.beforeTips : null;
+                set.afterTips = settings.afterTips ? settings.afterTips : null;
+            }
 
             function getBoolean(value) {
                 return (value === 'true') ? true : false;
@@ -49,9 +53,12 @@
 
             // 生成提示框方法
             function createTips() {
+                init(); // 初始化属性配置
+                set.beforeTips && set.beforeTips(); // 调用显示前回调方法
+
                 index = parseInt(Math.random() * 100000);
                 // console.log(index);
-                html = '<div class="tips-box target-'+ index +' '+ set.position +'" style="border-color: '+ set.borderColor +'; background-color: '+ set.backgroundColor +'; max-width: '+ set.maxWidth +'">'+
+                html = '<div class="tips-box target-'+ $target +'-'+ index +' '+ set.position +'" style="border-color: '+ set.borderColor +'; background-color: '+ set.backgroundColor +'; max-width: '+ set.maxWidth +'">'+
                             '<div class="arrow"><div class="core"></div></div>'+
                             '<div class="tips-content" style="color: '+ set.color +'; font-size: '+ set.fontSize +';">'+
                                 set.text+
@@ -59,7 +66,7 @@
                         '</div>';
                 $('body').append(html); // 生成弹框
 
-                $tips = $('.target-'+ index); // 获取弹框对象
+                $tips = $('.target-'+ $target +'-'+ index); // 获取弹框对象
 
                 // 提示框方向
                 switch (set.position) {
@@ -110,7 +117,6 @@
                 case 1:
                     $that.on({
                         'mouseenter': function () {
-                            set.beforeTips && set.beforeTips();
                             createTips();
                         },
                         'mouseleave': function () {
