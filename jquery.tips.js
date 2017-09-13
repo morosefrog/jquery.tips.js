@@ -1,7 +1,7 @@
 /**
  * Plug-In name: jquery.tips.js
- * Versions: 1.1.0
- * Modify time: 2017/09/11
+ * Versions: 1.1.1
+ * Modify time: 2017/09/13
  * Created by TomnTang on 2017/03/26
  * Website: http://www.lovevivi.com/plugin/jquery.tips.js/
  */
@@ -157,6 +157,7 @@
                 case 4:
                     $that.on({
                         'mouseenter': function () {
+                            $tips && removeTips();
                             createTips();
                         },
                         'mouseleave': function () {
