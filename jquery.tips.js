@@ -1,7 +1,7 @@
 /**
  * Plug-In name: jquery.tips.js
- * Versions: 1.1.1
- * Modify time: 2017/09/13
+ * Versions: 1.1.2
+ * Modify time: 2017/09/19
  * Created by TomnTang on 2017/03/26
  * Website: http://www.lovevivi.com/plugin/jquery.tips.js/
  */
@@ -18,7 +18,9 @@
             backgroundColor: '#fff',
             fontSize: '12px',
             maxWidth: '200px',
+            maxHeight: 'auto',
             position: 'top',
+            offset: [0,0],
             time: 2,
             animation: true,
             beforeTips: null,
@@ -28,7 +30,7 @@
         var settings = $.extend({}, defaults, options), $target = (this.selector) ? (this.selector).replace(/[.\s\>]+/g, '') : 'target';
 
         return this.each(function(){
-            var $that = $(this), html = '', $tips = null, offset = 6, set = {} , index = 0, timer = null;
+            var $that = $(this), html = '', $tips = null, arrowOffset = 6, set = {} , index = 0, timer = null;
 
             set.type = parseInt($that.attr('tips-type') ? $that.attr('tips-type') : settings.type);
 
@@ -42,7 +44,9 @@
                 set.backgroundColor = $that.attr('tips-backgroundcolor') ? $that.attr('tips-backgroundcolor') : (settings.backgroundColor ? settings.backgroundColor : set.borderColor);
                 set.fontSize = $that.attr('tips-fontsize') ? $that.attr('tips-fontsize') : settings.fontSize;
                 set.maxWidth = $that.attr('tips-maxwidth') ? $that.attr('tips-maxwidth') : settings.maxWidth;
+                set.maxHeight = $that.attr('tips-maxheight') ? $that.attr('tips-maxheight') : settings.maxHeight;
                 set.position = $that.attr('tips-position') ? $that.attr('tips-position') : settings.position;
+                set.offset = $that.attr('tips-offset') ? $.parseJSON($that.attr('tips-offset')) : settings.offset;
                 set.time = parseInt($that.attr('tips-time') ? $that.attr('tips-time') : settings.time);
                 set.animation = $that.attr('tips-animation') !== undefined ? getBoolean($that.attr('tips-animation')) : settings.animation;
                 set.beforeTips = settings.beforeTips ? settings.beforeTips : null;
@@ -61,9 +65,9 @@
 
                 index = parseInt(Math.random() * 100000);
                 
-                html = '<div class="tips-box target-'+ $target +'-'+ index +' '+ set.position +'" style="border-color: '+ set.borderColor +'; background-color: '+ set.backgroundColor +'; max-width: '+ set.maxWidth +'">'+
+                html = '<div class="tips-box target-'+ $target +'-'+ index +' '+ set.position +'" style="border-color: '+ set.borderColor +'; background-color: '+ set.backgroundColor +';">'+
                             '<div class="arrow"><div class="core"></div></div>'+
-                            '<div class="tips-content" style="color: '+ set.color +'; font-size: '+ set.fontSize +';">'+
+                            '<div class="tips-content" style="color: '+ set.color +'; font-size: '+ set.fontSize +'; max-width: '+ set.maxWidth +'; max-height: '+ set.maxHeight +';">'+
                                 set.text +
                             '</div>'+
                         '</div>';
@@ -74,26 +78,50 @@
                 // 提示框方向
                 switch (set.position) {
                     case 'top':
-                        set.top = $that.offset().top - $tips.outerHeight() - offset;
-                        set.left = $that.offset().left + $that.outerWidth() / 2 - $tips.outerWidth() / 2;
+                        set.top = $that.offset().top - $tips.outerHeight() - arrowOffset + set.offset[1];
+                        set.left = $that.offset().left + $that.outerWidth() / 2 - $tips.outerWidth() / 2 + set.offset[0];
+                        $tips.find('.arrow').css({'borderTopColor': set.borderColor}).find('.core').css({'borderTopColor': set.backgroundColor});
+                        $tips.addClass(set.animation ? 'fadeInDown animated' : '');
+                        break;
+                    case 'top-left':
+                        set.top = $that.offset().top - $tips.outerHeight() - arrowOffset + set.offset[1];
+                        set.left = $that.offset().left + set.offset[0];
                         $tips.find('.arrow').css({'borderTopColor': set.borderColor}).find('.core').css({'borderTopColor': set.backgroundColor});
                         $tips.addClass(set.animation ? 'fadeInDown animated' : '');
                         break;
                     case 'right':
-                        set.top = $that.offset().top + $that.outerHeight() / 2 - $tips.outerHeight() / 2;
-                        set.left = $that.offset().left + $that.outerWidth() + offset;
+                        set.top = $that.offset().top + $that.outerHeight() / 2 - $tips.outerHeight() / 2 + set.offset[1];
+                        set.left = $that.offset().left + $that.outerWidth() + arrowOffset + set.offset[0];
+                        $tips.find('.arrow').css({'borderRightColor': set.borderColor}).find('.core').css({'borderRightColor': set.backgroundColor});
+                        $tips.addClass(set.animation ? 'fadeInRight animated' : '');
+                        break;
+                    case 'right-top':
+                        set.top = $that.offset().top + set.offset[1];
+                        set.left = $that.offset().left + $that.outerWidth() + arrowOffset + set.offset[0];
                         $tips.find('.arrow').css({'borderRightColor': set.borderColor}).find('.core').css({'borderRightColor': set.backgroundColor});
                         $tips.addClass(set.animation ? 'fadeInRight animated' : '');
                         break;
                     case 'bottom':
-                        set.top = $that.offset().top + $that.outerHeight() + offset;
-                        set.left = $that.offset().left + $that.outerWidth() / 2 - $tips.outerWidth() / 2;
+                        set.top = $that.offset().top + $that.outerHeight() + arrowOffset + set.offset[1];
+                        set.left = $that.offset().left + $that.outerWidth() / 2 - $tips.outerWidth() / 2 + set.offset[0];
+                        $tips.find('.arrow').css({'borderBottomColor': set.borderColor}).find('.core').css({'borderBottomColor': set.backgroundColor});
+                        $tips.addClass(set.animation ? 'fadeInUp animated' : '');
+                        break;
+                    case 'bottom-left':
+                        set.top = $that.offset().top + $that.outerHeight() + arrowOffset + set.offset[1];
+                        set.left = $that.offset().left + + set.offset[0];
                         $tips.find('.arrow').css({'borderBottomColor': set.borderColor}).find('.core').css({'borderBottomColor': set.backgroundColor});
                         $tips.addClass(set.animation ? 'fadeInUp animated' : '');
                         break;
                     case 'left':
-                        set.top = $that.offset().top + $that.outerHeight() / 2 - $tips.outerHeight() / 2;
-                        set.left = $that.offset().left - $tips.outerWidth() - offset ;
+                        set.top = $that.offset().top + $that.outerHeight() / 2 - $tips.outerHeight() / 2 + set.offset[1];
+                        set.left = $that.offset().left - $tips.outerWidth() - arrowOffset + set.offset[0];
+                        $tips.find('.arrow').css({'borderLeftColor': set.borderColor}).find('.core').css({'borderLeftColor': set.backgroundColor});
+                        $tips.addClass(set.animation ? 'fadeInLeft animated' : '');
+                        break;
+                    case 'left-top':
+                        set.top = $that.offset().top + set.offset[1];
+                        set.left = $that.offset().left - $tips.outerWidth() - arrowOffset + set.offset[0];
                         $tips.find('.arrow').css({'borderLeftColor': set.borderColor}).find('.core').css({'borderLeftColor': set.backgroundColor});
                         $tips.addClass(set.animation ? 'fadeInLeft animated' : '');
                         break;
